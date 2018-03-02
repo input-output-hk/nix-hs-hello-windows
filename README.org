@@ -4,6 +4,16 @@
   submodule that should allow us to cross compile a small haskell application
   into a working windows executable.
 
+** Building
+   To build the cross compiled ~hs-hello.exe~ with nix, all we need is
+
+   #+BEGIN_SRC bash
+   $ nix-build -I nixpkgs=$(PWD)/nixpkgs hs-hello.nix --cores 0 
+   #+END_SRC
+
+   This will build the necessary dependencies, and finally build the
+   ~hs-hello.exe~, which we can find in ~result/bin/hs-hello.exe~.
+
 ** ~config.nix~
    We will need a customized GHC.  Due to the introduction of the
    ~buildPackages~ for the cross compilation capabilities in ~nixpkgs~ this
@@ -34,14 +44,4 @@
    library is built for the **build** machine.  For the ~hs-hello~ package
    (~default.nix~) we use ~pkgs~ which will result in the package to be built
    for the **host** machine.
-
-** Building
-   To build the cross compiled ~hs-hello.exe~ with nix, all we need is
-
-   #+BEGIN_SRC bash
-   $ nix-build -I nixpkgs=$(PWD)/nixpkgs hs-hello.nix --cores 0 
-   #+END_SRC
-
-   This will build the necessary dependencies, and finally build the
-   ~hs-hello.exe~, which we can find in ~result/bin/hs-hello.exe~.
 
