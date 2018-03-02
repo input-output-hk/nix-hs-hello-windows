@@ -4,7 +4,7 @@
   submodule that should allow us to cross compile a small haskell application
   into a working windows executable.
 
-  [[ ./hs-hello.png ]]
+  [[file:hs-hello.png]]
 
 ** Building
    To build the cross compiled ~hs-hello.exe~ with nix, all we need is
