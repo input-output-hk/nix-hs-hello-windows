@@ -12,6 +12,7 @@ let customizeGhc = oldGhc:
    # name = "ghc-8.5.angerman";
    dontStrip = true;
    # patches = map fetchDiff ghcDiffs;
+   hardeningDisable = [ "stackprotector" ];
  });
 in
 {

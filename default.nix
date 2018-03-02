@@ -9,4 +9,6 @@ mkDerivation {
   setupHaskellDepends = [ Cabal_HEAD ];
   executableHaskellDepends = [ base ];
   license = stdenv.lib.licenses.bsd3;
+
+  hardeningDisable = [ "stackprotector" ];
 }
