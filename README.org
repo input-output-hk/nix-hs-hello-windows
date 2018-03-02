@@ -1,0 +1,47 @@
+* Hello Windows
+
+  This repository contains the necessary nix-expressions and a ~nixpkgs~
+  submodule that should allow us to cross compile a small haskell application
+  into a working windows executable.
+
+** ~config.nix~
+   We will need a customized GHC.  Due to the introduction of the
+   ~buildPackages~ for the cross compilation capabilities in ~nixpkgs~ this
+   turns out to be a bit more complicated than we like.  The core issue here is
+   that the stage logic and the ~packageOverrides~ do not play well together.
+   Specifically changes made via ~packageOverrides~ do not show up in the
+   ~buildPackages~.
+
+** ~default.nix~
+   This is our usual haskell package expression.  Just note the additional 
+
+   #+BEGIN_SRC nix
+   enableSharedExecutables = false;
+   setupHaskellDepends = [ Cabal_HEAD ];
+   #+END_SRC
+
+   as we don't have dynamic libraries with our cross compiler (yet).  And need
+   to link against a custom ~Cabal~ library.
+
+** ~hs-hello.nix~
+   In the ~hs-hello.nix~ we'll pull everything together.  Set the ~crossSystem~
+   to ~mingwW64~ and the ~packageOverlays~ via ~config~.
+
+   In addition we setup a custom ~Cabal~ library, which we want to link against;
+   the one that ships with GHC has some defects when cross compiling to windows.
+
+   We use ~callPackage~ on the ~buildPackages~ to ensure that the ~Cabal~
+   library is built for the **build** machine.  For the ~hs-hello~ package
+   (~default.nix~) we use ~pkgs~ which will result in the package to be built
+   for the **host** machine.
+
+** Building
+   To build the cross compiled ~hs-hello.exe~ with nix, all we need is
+
+   #+BEGIN_SRC bash
+   $ nix-build -I nixpkgs=$(PWD)/nixpkgs hs-hello.nix --cores 0 
+   #+END_SRC
+
+   This will build the necessary dependencies, and finally build the
+   ~hs-hello.exe~, which we can find in ~result/bin/hs-hello.exe~.
+
