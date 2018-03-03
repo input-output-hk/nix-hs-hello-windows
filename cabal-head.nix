@@ -7,7 +7,7 @@ mkDerivation {
        src = pkgs.fetchgit {
         url = "https://github.com/zw3rk/cabal.git";
         rev = "d8f21cdc229304e41005eb223e05603da190df8f";
-        sha256 = "";
+        sha256 = "1schvsjyhz25imiiqzzqwsy2b5hlxy7gz2q8ifvjk99xyzzkbpgi";
         # extracting the "Cabal" subfolder from the checkout.
         # this is terrible :(
         postFetch = ''
