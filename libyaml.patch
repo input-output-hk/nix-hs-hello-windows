@@ -1,0 +1,14 @@
+--- yaml-0.1.7/include/yaml.h	2016-08-29 07:56:34.000000000 +0800
++++ yaml-0.1.7/include/yaml.h	2018-03-04 16:20:15.000000000 +0800
+@@ -25,8 +25,9 @@
+  */
+ 
+ /** The public API declaration. */
+-
+-#ifdef _WIN32
++#if defined(__MINGW32__)
++#   define  YAML_DECLARE(type)  type
++#elif defined(WIN32)
+ #   if defined(YAML_DECLARE_STATIC)
+ #       define  YAML_DECLARE(type)  type
+ #   elif defined(YAML_DECLARE_EXPORT)

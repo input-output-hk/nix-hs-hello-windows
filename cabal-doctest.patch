@@ -1,0 +1,15 @@
+diff -u cabal-doctest-1.0.6.orig/cabal-doctest.cabal cabal-doctest-1.0.6/cabal-doctest.cabal
+--- cabal-doctest-1.0.6.orig/cabal-doctest.cabal	2018-03-04 15:43:00.000000000 +0800
++++ cabal-doctest-1.0.6/cabal-doctest.cabal	2018-03-04 15:43:34.000000000 +0800
+@@ -38,8 +38,8 @@
+   other-modules:
+   other-extensions:
+   build-depends:
+-    base >=4.3 && <4.11,
+-    Cabal >= 1.10 && <2.1,
++    base >=4.3 && <4.12,
++    Cabal >= 1.10 && <2.2,
+     filepath,
+     directory
+   hs-source-dirs:      src
+Common subdirectories: cabal-doctest-1.0.6.orig/src and cabal-doctest-1.0.6/src
