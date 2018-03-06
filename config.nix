@@ -1,9 +1,9 @@
 let customizeGhc = oldGhc:
  let ghc = oldGhc.override {
    # override the version, revision and flavour to get a custom ghc.
-   version = "8.5.20180305";
-   ghcRevision = "b824438e1c6a203f7175705161852928d4315329";
-   ghcSha256 = "0wrzrs7n7vr4z686fyji78lls59fljwzlxijj5cyra2h64jzvrif";
+   version = "8.5.20180306";
+   ghcRevision = "1dfd7aa2cb06adccc9180463807e62260d66c90e";
+   ghcSha256 = "13iygvpdsbwxphx89lcvp358z63rnah8gzyxzv20qik6vhh7nf2j";
    ghcCrossFlavour = "quick-cross-ncg";
    ghcFlavour = "quick";
  }; in ghc.overrideAttrs (drv: {
