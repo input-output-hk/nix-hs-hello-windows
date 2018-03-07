@@ -10,17 +10,11 @@
    To build the cross compiled ~hs-hello.exe~ with nix, all we need is
 
    #+BEGIN_SRC bash
-   $ nix-build -I nixpkgs=$(PWD)/nixpkgs hs-hello.nix --cores 0 
+   $ nix-build -A hello-world --cores 0 
    #+END_SRC
 
    This will build the necessary dependencies, and finally build the
    ~hs-hello.exe~, which we can find in ~result/bin/hs-hello.exe~.
-   
-   *NOTE*: you will need to check out this repository *recursively*,
-   including the ~nixpkgs~ submodule.  It is also essential to pass
-   ~-I nixpkgs=$(PWD)/nixpkgs~ to ~nix-build~ to use the custom ~nixpkgs~
-   submodule, which contains a few modifications ontop of the unstable
-   channel.
 
 ** ~config.nix~
    We will need a customized GHC.  Due to the introduction of the
