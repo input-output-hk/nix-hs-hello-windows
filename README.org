@@ -36,7 +36,7 @@
    to link against a custom ~Cabal~ library.
 
 ** ~default.nix~
-   In the ~hs-hello.nix~ we'll pull everything together.  Set the ~crossSystem~
+   In the ~default.nix~ we'll pull everything together.  Set the ~crossSystem~
    to ~mingwW64~ and the ~packageOverlays~ via ~config~.
 
    In addition we setup a custom ~Cabal~ library, which we want to link against;
