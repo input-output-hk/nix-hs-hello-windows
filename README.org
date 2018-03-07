@@ -24,7 +24,7 @@
    Specifically changes made via ~packageOverrides~ do not show up in the
    ~buildPackages~.
 
-** ~default.nix~
+** ~hello-world.nix~
    This is our usual haskell package expression.  Just note the additional 
 
    #+BEGIN_SRC nix
@@ -35,7 +35,7 @@
    as we don't have dynamic libraries with our cross compiler (yet).  And need
    to link against a custom ~Cabal~ library.
 
-** ~hs-hello.nix~
+** ~default.nix~
    In the ~hs-hello.nix~ we'll pull everything together.  Set the ~crossSystem~
    to ~mingwW64~ and the ~packageOverlays~ via ~config~.
 
@@ -43,7 +43,7 @@
    the one that ships with GHC has some defects when cross compiling to windows.
 
    We use ~callPackage~ on the ~buildPackages~ to ensure that the ~Cabal~
-   library is built for the *build* machine.  For the ~hs-hello~ package
-   (~default.nix~) we use ~pkgs~ which will result in the package to be built
-   for the **host** machine.
+   library is built for the *build* machine.  For the ~hello-world~ package
+   (~hello-world.nix~) we use ~pkgs~ which will result in the package to be built
+   for the *host* machine.
 
