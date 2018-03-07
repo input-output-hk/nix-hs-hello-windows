@@ -8,7 +8,7 @@ diff -u cabal-doctest-1.0.6.orig/cabal-doctest.cabal cabal-doctest-1.0.6/cabal-d
 -    base >=4.3 && <4.11,
 -    Cabal >= 1.10 && <2.1,
 +    base >=4.3 && <4.12,
-+    Cabal >= 1.10 && <2.2,
++    Cabal >= 1.10 && <2.3,
      filepath,
      directory
    hs-source-dirs:      src
