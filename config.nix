@@ -22,7 +22,7 @@ in
       };
       haskell.packages = ps.haskell.packages // {
         ghcHEAD = ps.haskell.packages.ghcHEAD.override {
-      	  ghc = customizeGhc ps.buildPackages.haskell.compiler.ghcHEAD;
+          ghc = customizeGhc ps.buildPackages.haskell.compiler.ghcHEAD;
         };
         # Cabal_HEAD = ps.buildPackages.haskell.packages.ghcHEAD.callPackage ./cabal-head.nix { };
 
