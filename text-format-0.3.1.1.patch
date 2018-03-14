@@ -1,0 +1,95 @@
+diff -urN text-format-0.3.1.1/Data/Text/Buildable.hs text-format-0.3.1.1.patched/Data/Text/Buildable.hs
+--- text-format-0.3.1.1/Data/Text/Buildable.hs	2014-03-07 02:31:01.000000000 +0800
++++ text-format-0.3.1.1.patched/Data/Text/Buildable.hs	2018-03-08 14:16:29.000000000 +0800
+@@ -32,6 +32,7 @@
+ import qualified Data.Double.Conversion.Text as C
+ import qualified Data.Text as ST
+ import qualified Data.Text.Lazy as LT
++import Prelude hiding ((<>))
+ 
+ -- | The class of types that can be rendered to a 'Builder'.
+ class Buildable p where
+diff -urN text-format-0.3.1.1/Data/Text/Format/Functions.hs text-format-0.3.1.1.patched/Data/Text/Format/Functions.hs
+--- text-format-0.3.1.1/Data/Text/Format/Functions.hs	2014-03-07 02:31:01.000000000 +0800
++++ text-format-0.3.1.1.patched/Data/Text/Format/Functions.hs	2018-03-08 13:56:31.000000000 +0800
+@@ -19,7 +19,8 @@
+ 
+ import Data.Monoid (mappend)
+ import Data.Text.Lazy.Builder (Builder)
+-import GHC.Base
++import GHC.Base hiding ((<>))
++import Prelude hiding ((<>))
+ 
+ -- | Unsafe conversion for decimal digits.
+ {-# INLINE i2d #-}
+diff -urN text-format-0.3.1.1/Data/Text/Format/Int.hs text-format-0.3.1.1.patched/Data/Text/Format/Int.hs
+--- text-format-0.3.1.1/Data/Text/Format/Int.hs	2014-03-07 02:31:01.000000000 +0800
++++ text-format-0.3.1.1.patched/Data/Text/Format/Int.hs	2018-03-08 14:06:53.000000000 +0800
+@@ -24,12 +24,13 @@
+ import GHC.Base (quotInt, remInt)
+ import GHC.Num (quotRemInteger)
+ import GHC.Types (Int(..))
++import Prelude hiding ((<>))
+ 
+ #ifdef  __GLASGOW_HASKELL__
+ # if __GLASGOW_HASKELL__ < 611
+-import GHC.Integer.Internals
++-- import GHC.Integer.Internals
+ # else
+-import GHC.Integer.GMP.Internals
++-- import GHC.Integer.GMP.Internals
+ # endif
+ #endif
+ 
+@@ -99,8 +100,8 @@
+ data T = T !Integer !Int
+ 
+ integer :: Int -> Integer -> Builder
+-integer 10 (S# i#) = decimal (I# i#)
+-integer 16 (S# i#) = hexadecimal (I# i#)
++-- integer 10 (S# i#) = decimal (I# i#)
++-- integer 16 (S# i#) = hexadecimal (I# i#)
+ integer base i
+     | i < 0     = minus <> go (-i)
+     | otherwise = go i
+diff -urN text-format-0.3.1.1/Data/Text/Format/Types/Internal.hs text-format-0.3.1.1.patched/Data/Text/Format/Types/Internal.hs
+--- text-format-0.3.1.1/Data/Text/Format/Types/Internal.hs	2014-03-07 02:31:01.000000000 +0800
++++ text-format-0.3.1.1.patched/Data/Text/Format/Types/Internal.hs	2018-03-08 14:10:22.000000000 +0800
+@@ -46,8 +46,10 @@
+ newtype Format = Format { fromFormat :: Text }
+     deriving (Eq, Ord, Typeable, Show)
+ 
++instance Semigroup Format where
++   Format a <> Format b = Format (a <> b)
++
+ instance Monoid Format where
+-    Format a `mappend` Format b = Format (a `mappend` b)
+     mempty = Format mempty
+ 
+ instance IsString Format where
+diff -urN text-format-0.3.1.1/Data/Text/Format.hs text-format-0.3.1.1.patched/Data/Text/Format.hs
+--- text-format-0.3.1.1/Data/Text/Format.hs	2014-03-07 02:31:01.000000000 +0800
++++ text-format-0.3.1.1.patched/Data/Text/Format.hs	2018-03-08 14:27:38.000000000 +0800
+@@ -41,7 +41,7 @@
+ import Data.Text.Format.Types.Internal (Format(..), Only(..), Shown(..))
+ import Data.Text.Format.Types.Internal (Hex(..))
+ import Data.Text.Lazy.Builder
+-import Prelude hiding (exp, print)
++import Prelude hiding (exp, print, (<>))
+ import System.IO (Handle)
+ import qualified Data.Double.Conversion.Text as C
+ import qualified Data.Text as ST
+diff -urN text-format-0.3.1.1/text-format.cabal text-format-0.3.1.1.patched/text-format.cabal
+--- text-format-0.3.1.1/text-format.cabal	2018-03-14 20:18:34.000000000 +0800
++++ text-format-0.3.1.1.patched/text-format.cabal	2018-03-08 13:31:41.000000000 +0800
+@@ -56,8 +56,8 @@
+ 
+   cpp-options: -DINTEGER_GMP
+ 
+-  if impl(ghc >= 6.11)
+-    build-depends: integer-gmp >= 0.2
++--  if impl(ghc >= 6.11)
++--    build-depends: integer-gmp >= 0.2
+ 
+   if impl(ghc >= 6.9) && impl(ghc < 6.11)
+     build-depends: integer >= 0.1 && < 0.2

@@ -79,7 +79,8 @@ in
           th-abstraction = ps.haskell.lib.appendPatch super.th-abstraction ./th-abstraction.patch;
 
           #other patches
-          system-fileio = ps.haskell.lib.appendPatch super.system-fileio ./system-fileio.patch;
+            system-fileio = ps.haskell.lib.appendPatch super.system-fileio ./system-fileio.patch;
+            text-format = ps.haskell.lib.appendPatch super.text-format ./text-format-0.3.1.1.patch;
             double-conversion = let p2 = (let p = ps.haskell.lib.appendPatch super.double-conversion ./double-conversion.patch;
             in ps.haskell.lib.overrideCabal p (drv: { doVerbose = true; }));
             in ps.haskell.lib.appendConfigureFlag p2 [ "-v0" ];
