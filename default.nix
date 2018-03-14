@@ -6,15 +6,19 @@ let
     owner = "angerman";
   };
 in
-  { pkgsPath' ? pkgsPath }:
+  { nixpkgsPath ? pkgsPath }:
 
-with import pkgsPath' {
+with import nixpkgsPath {
   crossSystem = (import <nixpkgs/lib>).systems.examples.mingwW64;
   config = import ./config.nix;
 };
 let Cabal_HEAD = buildPackages.haskell.packages.ghcHEAD.callPackage ./cabal-head.nix { };
 in {
   hello-world = pkgs.haskell.packages.ghcHEAD.callPackage ./hello-world.nix { inherit Cabal_HEAD; };
+  dhall-json = pkgs.haskell.packages.ghcHEAD.callPackage ./dhall-json.nix { inherit Cabal_HEAD; };
   cross-ghc = haskell.packages.ghcHEAD.ghc;
+  lens = haskell.packages.ghcHEAD.lens;
+  double-conversion = haskell.packages.ghcHEAD.double-conversion;
   inherit Cabal_HEAD;
+  inherit pkgs;
 }
