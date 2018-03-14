@@ -1,0 +1,12 @@
+diff -urN x509-system-1.6.6/x509-system.cabal x509-system-1.6.6.patched/x509-system.cabal
+--- x509-system-1.6.6/x509-system.cabal	2018-03-14 20:59:42.000000000 +0800
++++ x509-system-1.6.6.patched/x509-system.cabal	2018-03-14 21:00:00.000000000 +0800
+@@ -32,7 +32,7 @@
+   if os(windows)
+      cpp-options:     -DWINDOWS
+      Build-Depends:   Win32, asn1-encoding
+-     extra-libraries: Crypt32
++     extra-libraries: crypt32
+      Exposed-modules: System.X509.Win32
+   if os(OSX)
+      cpp-options: -DMACOSX
