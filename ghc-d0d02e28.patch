@@ -1,0 +1,388 @@
+Submodule libraries/transformers contains modified content
+diff --git a/libraries/transformers/Control/Applicative/Backwards.hs b/libraries/transformers/Control/Applicative/Backwards.hs
+index ebb8a0b..16cf0e0 100644
+--- a/libraries/transformers/Control/Applicative/Backwards.hs
++++ b/libraries/transformers/Control/Applicative/Backwards.hs
+@@ -32,6 +32,9 @@ import Prelude hiding (foldr, foldr1, foldl, foldl1, null, length)
+ import Control.Applicative
+ import Data.Foldable
+ import Data.Traversable
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | The same functor, but with an 'Applicative' instance that performs
+ -- actions in the reverse order.
+@@ -100,3 +103,9 @@ instance (Traversable f) => Traversable (Backwards f) where
+     {-# INLINE traverse #-}
+     sequenceA (Backwards t) = fmap Backwards (sequenceA t)
+     {-# INLINE sequenceA #-}
++
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant f => Contravariant (Backwards f) where
++  contramap f = Backwards . contramap f . forwards
++  {-# INLINE contramap #-}
++#endif
+diff --git a/libraries/transformers/Control/Monad/Trans/Error.hs b/libraries/transformers/Control/Monad/Trans/Error.hs
+index 144da45..7638bdc 100644
+--- a/libraries/transformers/Control/Monad/Trans/Error.hs
++++ b/libraries/transformers/Control/Monad/Trans/Error.hs
+@@ -73,6 +73,9 @@ import Data.Foldable (Foldable(foldMap))
+ import Data.Monoid (mempty)
+ import Data.Traversable (Traversable(traverse))
+ import System.IO.Error
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ #if !(MIN_VERSION_base(4,9,0))
+ -- These instances are in base-4.9.0
+@@ -263,6 +266,11 @@ instance MonadTrans (ErrorT e) where
+ instance (Error e, MonadIO m) => MonadIO (ErrorT e m) where
+     liftIO = lift . liftIO
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (ErrorT e m) where
++  contramap f = ErrorT . contramap (fmap f) . runErrorT
++#endif
++
+ -- | Signal an error value @e@.
+ --
+ -- * @'runErrorT' ('throwError' e) = 'return' ('Left' e)@
+diff --git a/libraries/transformers/Control/Monad/Trans/Except.hs b/libraries/transformers/Control/Monad/Trans/Except.hs
+index 6a06297..068ccb5 100644
+--- a/libraries/transformers/Control/Monad/Trans/Except.hs
++++ b/libraries/transformers/Control/Monad/Trans/Except.hs
+@@ -65,7 +65,9 @@ import Control.Monad.Zip (MonadZip(mzipWith))
+ import Data.Foldable (Foldable(foldMap))
+ import Data.Monoid
+ import Data.Traversable (Traversable(traverse))
+-
++#if MIN_VERSION_base(4,11,0)
++import Data.Functor.Contravariant
++#endif
+ -- | The parameterizable exception monad.
+ --
+ -- Computations are either exceptions or normal values.
+@@ -255,6 +257,11 @@ instance (MonadZip m) => MonadZip (ExceptT e m) where
+     {-# INLINE mzipWith #-}
+ #endif
+ 
++#if MIN_VERSION_base(4,11,0)
++instance Contravariant m => Contravariant (ExceptT e m) where
++  contramap f = ExceptT . contramap (fmap f) . runExceptT
++#endif
++
+ -- | Signal an exception value @e@.
+ --
+ -- * @'runExceptT' ('throwE' e) = 'return' ('Left' e)@
+diff --git a/libraries/transformers/Control/Monad/Trans/Identity.hs b/libraries/transformers/Control/Monad/Trans/Identity.hs
+index b04428e..ff6e7eb 100644
+--- a/libraries/transformers/Control/Monad/Trans/Identity.hs
++++ b/libraries/transformers/Control/Monad/Trans/Identity.hs
+@@ -49,6 +49,9 @@ import Control.Monad.Zip (MonadZip(mzipWith))
+ import Data.Foldable
+ import Data.Traversable (Traversable(traverse))
+ import Prelude hiding (foldr, foldr1, foldl, foldl1, null, length)
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | The trivial monad transformer, which maps a monad to an equivalent monad.
+ newtype IdentityT f a = IdentityT { runIdentityT :: f a }
+@@ -154,6 +157,11 @@ instance MonadTrans IdentityT where
+     lift = IdentityT
+     {-# INLINE lift #-}
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant f => Contravariant (IdentityT f) where
++  contramap f = IdentityT . contramap f . runIdentityT
++#endif
++
+ -- | Lift a unary operation to the new monad.
+ mapIdentityT :: (m a -> n b) -> IdentityT m a -> IdentityT n b
+ mapIdentityT f = IdentityT . f . runIdentityT
+diff --git a/libraries/transformers/Control/Monad/Trans/List.hs b/libraries/transformers/Control/Monad/Trans/List.hs
+index e87fb0c..3c2114b 100644
+--- a/libraries/transformers/Control/Monad/Trans/List.hs
++++ b/libraries/transformers/Control/Monad/Trans/List.hs
+@@ -45,6 +45,9 @@ import Control.Monad.Zip (MonadZip(mzipWith))
+ #endif
+ import Data.Foldable (Foldable(foldMap))
+ import Data.Traversable (Traversable(traverse))
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | Parameterizable list monad, with an inner monad.
+ --
+@@ -153,6 +156,11 @@ instance (MonadZip m) => MonadZip (ListT m) where
+     {-# INLINE mzipWith #-}
+ #endif
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (ListT m) where
++  contramap f = ListT . contramap (fmap f) . runListT
++#endif
++
+ -- | Lift a @callCC@ operation to the new monad.
+ liftCallCC :: CallCC m [a] [b] -> CallCC (ListT m) a b
+ liftCallCC callCC f = ListT $
+diff --git a/libraries/transformers/Control/Monad/Trans/Maybe.hs b/libraries/transformers/Control/Monad/Trans/Maybe.hs
+index 13114b1..6922338 100644
+--- a/libraries/transformers/Control/Monad/Trans/Maybe.hs
++++ b/libraries/transformers/Control/Monad/Trans/Maybe.hs
+@@ -58,6 +58,9 @@ import Control.Monad.Zip (MonadZip(mzipWith))
+ import Data.Foldable (Foldable(foldMap))
+ import Data.Maybe (fromMaybe)
+ import Data.Traversable (Traversable(traverse))
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | The parameterizable maybe monad, obtained by composing an arbitrary
+ -- monad with the 'Maybe' monad.
+@@ -201,6 +204,10 @@ instance (MonadZip m) => MonadZip (MaybeT m) where
+     mzipWith f (MaybeT a) (MaybeT b) = MaybeT $ mzipWith (liftA2 f) a b
+     {-# INLINE mzipWith #-}
+ #endif
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (MaybeT m) where
++  contramap f = MaybeT . contramap (fmap f) . runMaybeT
++#endif
+ 
+ -- | Lift a @callCC@ operation to the new monad.
+ liftCallCC :: CallCC m (Maybe a) (Maybe b) -> CallCC (MaybeT m) a b
+diff --git a/libraries/transformers/Control/Monad/Trans/RWS/Lazy.hs b/libraries/transformers/Control/Monad/Trans/RWS/Lazy.hs
+index 36694c5..4db22d7 100644
+--- a/libraries/transformers/Control/Monad/Trans/RWS/Lazy.hs
++++ b/libraries/transformers/Control/Monad/Trans/RWS/Lazy.hs
+@@ -72,6 +72,9 @@ import qualified Control.Monad.Fail as Fail
+ #endif
+ import Control.Monad.Fix
+ import Data.Monoid
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | A monad containing an environment of type @r@, output of type @w@
+ -- and an updatable state of type @s@.
+@@ -231,6 +234,12 @@ instance (Monoid w, MonadIO m) => MonadIO (RWST r w s m) where
+     liftIO = lift . liftIO
+     {-# INLINE liftIO #-}
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (RWST r w s m) where
++  contramap f m = RWST $ \r s ->
++    contramap (\ ~(a, s', w) -> (f a, s', w)) $ runRWST m r s
++#endif
++
+ -- ---------------------------------------------------------------------------
+ -- Reader operations
+ 
+diff --git a/libraries/transformers/Control/Monad/Trans/RWS/Strict.hs b/libraries/transformers/Control/Monad/Trans/RWS/Strict.hs
+index 32f2af5..11f7294 100644
+--- a/libraries/transformers/Control/Monad/Trans/RWS/Strict.hs
++++ b/libraries/transformers/Control/Monad/Trans/RWS/Strict.hs
+@@ -72,6 +72,9 @@ import qualified Control.Monad.Fail as Fail
+ #endif
+ import Control.Monad.Fix
+ import Data.Monoid
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | A monad containing an environment of type @r@, output of type @w@
+ -- and an updatable state of type @s@.
+@@ -231,6 +234,12 @@ instance (Monoid w, MonadIO m) => MonadIO (RWST r w s m) where
+     liftIO = lift . liftIO
+     {-# INLINE liftIO #-}
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (RWST r w s m) where
++  contramap f m = RWST $ \r s ->
++    contramap (\ (a, s', w) -> (f a, s', w)) $ runRWST m r s
++#endif
++
+ -- ---------------------------------------------------------------------------
+ -- Reader operations
+ 
+diff --git a/libraries/transformers/Control/Monad/Trans/Reader.hs b/libraries/transformers/Control/Monad/Trans/Reader.hs
+index b577b2d..23cad74 100644
+--- a/libraries/transformers/Control/Monad/Trans/Reader.hs
++++ b/libraries/transformers/Control/Monad/Trans/Reader.hs
+@@ -66,6 +66,9 @@ import Control.Monad.Zip (MonadZip(mzipWith))
+ #if MIN_VERSION_base(4,2,0)
+ import Data.Functor(Functor(..))
+ #endif
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | The parameterizable reader monad.
+ --
+@@ -207,6 +210,11 @@ instance (MonadZip m) => MonadZip (ReaderT r m) where
+     {-# INLINE mzipWith #-}
+ #endif
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (ReaderT r m) where
++  contramap f = ReaderT . fmap (contramap f) . runReaderT
++#endif
++
+ liftReaderT :: m a -> ReaderT r m a
+ liftReaderT m = ReaderT (const m)
+ {-# INLINE liftReaderT #-}
+diff --git a/libraries/transformers/Control/Monad/Trans/State/Lazy.hs b/libraries/transformers/Control/Monad/Trans/State/Lazy.hs
+index 13f61f4..f0e3678 100644
+--- a/libraries/transformers/Control/Monad/Trans/State/Lazy.hs
++++ b/libraries/transformers/Control/Monad/Trans/State/Lazy.hs
+@@ -84,6 +84,9 @@ import Control.Monad
+ import qualified Control.Monad.Fail as Fail
+ #endif
+ import Control.Monad.Fix
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- ---------------------------------------------------------------------------
+ -- | A state monad parameterized by the type @s@ of the state to carry.
+@@ -253,6 +256,12 @@ instance (MonadIO m) => MonadIO (StateT s m) where
+     liftIO = lift . liftIO
+     {-# INLINE liftIO #-}
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (StateT s m) where
++  contramap f m = StateT $ \s ->
++    contramap (\ ~(a, s') -> (f a, s')) $ runStateT m s
++#endif
++
+ -- | Fetch the current value of the state within the monad.
+ get :: (Monad m) => StateT s m s
+ get = state $ \ s -> (s, s)
+diff --git a/libraries/transformers/Control/Monad/Trans/State/Strict.hs b/libraries/transformers/Control/Monad/Trans/State/Strict.hs
+index f1fb782..f77d47b 100644
+--- a/libraries/transformers/Control/Monad/Trans/State/Strict.hs
++++ b/libraries/transformers/Control/Monad/Trans/State/Strict.hs
+@@ -81,6 +81,9 @@ import Control.Monad
+ import qualified Control.Monad.Fail as Fail
+ #endif
+ import Control.Monad.Fix
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- ---------------------------------------------------------------------------
+ -- | A state monad parameterized by the type @s@ of the state to carry.
+@@ -250,6 +253,12 @@ instance (MonadIO m) => MonadIO (StateT s m) where
+     liftIO = lift . liftIO
+     {-# INLINE liftIO #-}
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (StateT s m) where
++  contramap f m = StateT $ \s ->
++    contramap (\ (a, s') -> (f a, s')) $ runStateT m s
++#endif
++
+ -- | Fetch the current value of the state within the monad.
+ get :: (Monad m) => StateT s m s
+ get = state $ \ s -> (s, s)
+diff --git a/libraries/transformers/Control/Monad/Trans/Writer/Lazy.hs b/libraries/transformers/Control/Monad/Trans/Writer/Lazy.hs
+index c7f689c..7e1e9fa 100644
+--- a/libraries/transformers/Control/Monad/Trans/Writer/Lazy.hs
++++ b/libraries/transformers/Control/Monad/Trans/Writer/Lazy.hs
+@@ -68,6 +68,9 @@ import Data.Foldable
+ import Data.Monoid
+ import Data.Traversable (Traversable(traverse))
+ import Prelude hiding (null, length)
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- ---------------------------------------------------------------------------
+ -- | A writer monad parameterized by the type @w@ of output to accumulate.
+@@ -144,6 +147,11 @@ instance (Read w, Read1 m, Read a) => Read (WriterT w m a) where
+ instance (Show w, Show1 m, Show a) => Show (WriterT w m a) where
+     showsPrec = showsPrec1
+ 
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (WriterT w m) where
++  contramap f = mapWriterT $ contramap $ \ ~(a, w) -> (f a, w)
++#endif
++
+ -- | Extract the output from a writer computation.
+ --
+ -- * @'execWriterT' m = 'liftM' 'snd' ('runWriterT' m)@
+diff --git a/libraries/transformers/Control/Monad/Trans/Writer/Strict.hs b/libraries/transformers/Control/Monad/Trans/Writer/Strict.hs
+index 33058af..f0b6f08 100644
+--- a/libraries/transformers/Control/Monad/Trans/Writer/Strict.hs
++++ b/libraries/transformers/Control/Monad/Trans/Writer/Strict.hs
+@@ -71,6 +71,9 @@ import Data.Foldable
+ import Data.Monoid
+ import Data.Traversable (Traversable(traverse))
+ import Prelude hiding (null, length)
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- ---------------------------------------------------------------------------
+ -- | A writer monad parameterized by the type @w@ of output to accumulate.
+@@ -146,6 +149,10 @@ instance (Read w, Read1 m, Read a) => Read (WriterT w m a) where
+     readsPrec = readsPrec1
+ instance (Show w, Show1 m, Show a) => Show (WriterT w m a) where
+     showsPrec = showsPrec1
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant m => Contravariant (WriterT w m) where
++  contramap f = mapWriterT $ contramap $ \ (a, w) -> (f a, w)
++#endif
+ 
+ -- | Extract the output from a writer computation.
+ --
+diff --git a/libraries/transformers/Data/Functor/Constant.hs b/libraries/transformers/Data/Functor/Constant.hs
+index e22f0d6..92c3c46 100644
+--- a/libraries/transformers/Data/Functor/Constant.hs
++++ b/libraries/transformers/Data/Functor/Constant.hs
+@@ -42,6 +42,9 @@ import Data.Bifoldable (Bifoldable(..))
+ import Data.Bitraversable (Bitraversable(..))
+ #endif
+ import Prelude hiding (null, length)
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ 
+ -- | Constant functor.
+ newtype Constant a b = Constant { getConstant :: a }
+@@ -141,3 +144,8 @@ instance Bitraversable Constant where
+     bitraverse f _ (Constant a) = Constant <$> f a
+     {-# INLINE bitraverse #-}
+ #endif
++
++#if MIN_VERSION_base(4,11,0)
++instance Contravariant (Constant a) where
++  contramap _ (Constant a) = Constant a
++#endif
+diff --git a/libraries/transformers/Data/Functor/Reverse.hs b/libraries/transformers/Data/Functor/Reverse.hs
+index a6abc46..248b01d 100644
+--- a/libraries/transformers/Data/Functor/Reverse.hs
++++ b/libraries/transformers/Data/Functor/Reverse.hs
+@@ -38,7 +38,9 @@ import qualified Control.Monad.Fail as Fail
+ import Data.Foldable
+ import Data.Traversable
+ import Data.Monoid
+-
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ -- | The same functor, but with 'Foldable' and 'Traversable' instances
+ -- that process the elements in the reverse order.
+ newtype Reverse f a = Reverse { getReverse :: f a }
+@@ -129,3 +131,9 @@ instance (Traversable f) => Traversable (Reverse f) where
+     traverse f (Reverse t) =
+         fmap Reverse . forwards $ traverse (Backwards . f) t
+     {-# INLINE traverse #-}
++
++#if MIN_VERSION_base(4,11, 0)
++instance Contravariant f => Contravariant (Reverse f) where
++  contramap f = Reverse . contramap f . getReverse
++  {-# INLINE contramap #-}
++#endif

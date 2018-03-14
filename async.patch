@@ -1,0 +1,19 @@
+--- async-2.1.1.1/async.cabal	2017-04-10 16:05:37.000000000 +0800
++++ async-2.1.1.1/async.cabal	2018-03-09 15:01:36.000000000 +0800
+@@ -50,14 +50,14 @@
+     if impl(ghc>=7.1)
+         other-extensions: Trustworthy
+     exposed-modules:     Control.Concurrent.Async
+-    build-depends:       base >= 4.3 && < 4.11, stm >= 2.2 && < 2.5
++    build-depends:       base >= 4.3 && < 5, stm >= 2.2 && < 2.5
+ 
+ test-suite test-async
+     default-language: Haskell2010
+     type:       exitcode-stdio-1.0
+     hs-source-dirs: test
+     main-is:    test-async.hs
+-    build-depends: base >= 4.3 && < 4.11,
++    build-depends: base >= 4.3 && < 5,
+                    async,
+                    test-framework,
+                    test-framework-hunit,

@@ -1,11 +1,16 @@
 --- double-conversion-2.0.2.0/double-conversion.cabal	2016-12-14 03:37:31.000000000 +0800
-+++ double-conversion-2.0.2.0/double-conversion.cabal	2018-03-04 16:58:23.000000000 +0800
-@@ -73,7 +73,7 @@
++++ double-conversion-2.0.2.0/double-conversion.cabal	2018-03-13 21:25:12.000000000 +0800
+@@ -71,12 +71,7 @@
+     double-conversion/src/fixed-dtoa.cc
+     double-conversion/src/strtod.cc
  
-   if os(windows)
-     if arch(x86_64)
+-  if os(windows)
+-    if arch(x86_64)
 -      extra-libraries: stdc++-6 gcc_s_seh-1
-+      extra-libraries: 
+-    else
+-      extra-libraries: stdc++-6 gcc_s_dw2-1
+-  else
++  if !os(windows)
+     if os(darwin)
+       extra-libraries: c++
      else
-       extra-libraries: stdc++-6 gcc_s_dw2-1
-   else

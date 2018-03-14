@@ -1,0 +1,27 @@
+diff -ur StateVar-1.1.0.4/src/Data/StateVar.hs StateVar-1.1.0.4.patched/src/Data/StateVar.hs
+--- StateVar-1.1.0.4/src/Data/StateVar.hs	2016-04-12 14:25:40.000000000 +0800
++++ StateVar-1.1.0.4.patched/src/Data/StateVar.hs	2018-03-12 17:38:53.000000000 +0800
+@@ -83,7 +83,9 @@
+ import Data.Typeable
+ import Foreign.Ptr
+ import Foreign.Storable
+-
++#if MIN_VERSION_base(4,11, 0)
++import Data.Functor.Contravariant
++#endif
+ --------------------------------------------------------------------
+ -- * StateVar
+ --------------------------------------------------------------------
+@@ -274,3 +276,12 @@
+ instance HasGetter (IORef a) a where
+   get = liftIO . readIORef
+   {-# INLINE get #-}
++
++#if MIN_VERSION_base(4,11, 0)
++--------------------------------------------------------------------
++-- * Contravariant
++--------------------------------------------------------------------
++instance Contravariant SettableStateVar where
++  contramap f (SettableStateVar k) = SettableStateVar (k . f)
++  {-# INLINE contramap #-}
++#endif
