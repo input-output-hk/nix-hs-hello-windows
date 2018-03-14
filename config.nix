@@ -83,13 +83,11 @@ in
             double-conversion = let p2 = (let p = ps.haskell.lib.appendPatch super.double-conversion ./double-conversion.patch;
             in ps.haskell.lib.overrideCabal p (drv: { doVerbose = true; }));
             in ps.haskell.lib.appendConfigureFlag p2 [ "-v0" ];
-#          transformers = ps.haskell.lib.appendPatch super.transformers ./transformers.patch;
-#          transformers = self.transformers_0_5_5_0;
           StateVar = ps.haskell.lib.appendPatch super.StateVar ./StateVar.patch;
 
           mtl = ps.haskell.lib.overrideCabal super.mtl (drv: { libraryHaskellDepends = [ self.base self.transformers ]; });
-          # patched inplace...
-          contravariant = ps.haskell.lib.overrideCabal super.contravariant (drv: { src = ./contravariant-1.4.1; });
+
+          contravariant = ps.haskell.lib.appendPatch super.contravariant ./contravariant-1.4.1.patch;
           # missing libraries, due to os(mingw32) check not executed in cabal2nix
           http-client = addLibraryDepends super.http-client [ self.safe ]; # self.Win32 ];
           ansi-terminal = addLibraryDepends super.ansi-terminal [ self.base-compat self.containers ]; #self.Win32 ];
