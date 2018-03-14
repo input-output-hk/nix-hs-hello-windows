@@ -1,8 +1,8 @@
 let
   pkgsPath = import ./fetchNixpkgs.nix {
-    rev = "ff9275c2886a1d984bf9a20ef7871b65d85aa08f";
-    sha256 = "0c8nwx1ghl6p1z0wv8rf02f1zgvry66q3jn3xk74dw578avnsfvy";
-    sha256unpacked = "1mz15byiv0fb0iyjb245c0q613ipmklmbzx4wb74i8lvmfwa3cwr";
+    rev = "6fe29bd1be20e3d0400c175be75eca4b55b81020";
+    sha256 = "1z13fd1lvns4alghkyha4dvjk62mizy3kkxyli2iglzhasfjkwz6";
+    sha256unpacked = "05f6g9a5m7csy7v1mpd6jpcsmyzsw6zk0s50n9sv4h5jlbdchmr1";
     owner = "angerman";
   };
 in
