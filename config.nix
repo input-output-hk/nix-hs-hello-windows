@@ -82,6 +82,7 @@ in
             system-fileio = ps.haskell.lib.appendPatch super.system-fileio ./system-fileio.patch;
             text-format = ps.haskell.lib.appendPatch super.text-format ./text-format-0.3.1.1.patch;
             x509-system = ps.haskell.lib.appendPatch super.x509-system ./x509-system-1.6.6.patch;
+            streaming-commons = ps.haskell.lib.appendPatch super.streaming-commons ./streaming-commons-0.1.19.patch;
             double-conversion = let p2 = (let p = ps.haskell.lib.appendPatch super.double-conversion ./double-conversion.patch;
 
             in ps.haskell.lib.overrideCabal p (drv: { doVerbose = true; }));
