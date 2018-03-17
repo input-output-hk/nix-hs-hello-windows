@@ -117,6 +117,20 @@ in
               attoparsec = ps.haskell.lib.dontStrip super.attoparsec;
               aeson = ps.haskell.lib.dontStrip super.aeson;
               #             Cabal_HEAD = self.callPackage ./cabal-head.nix { };
+
+              # Template Haskell
+              trifecta = with ps.buildPackages.haskell.packages.ghcHEAD;
+                         with ps.haskell.lib;
+                         appendBuildFlags (overrideCabal super.trifecta (drv: { buildTools = [ iserv-proxy ]; }))
+                           [ "--ghc-option=-fexternal-interpreter"
+                             "--ghc-option=-fexternal-interpreter"
+                             "--ghc-option=-pgmi"
+                             "--ghc-option=${iserv-proxy}/bin/iserv-proxy"
+                             "--ghc-option=-opti"
+                             "--ghc-option=10.0.1.22"
+                             "--ghc-option=-opti"
+                             "--ghc-option=5001"
+                           ];
             };
           };
         });

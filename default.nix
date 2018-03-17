@@ -23,6 +23,7 @@ in {
   double-conversion = haskell.packages.ghcHEAD.double-conversion;
   libiserv = haskell.packages.ghcHEAD.libiserv;
   remote-iserv = haskell.packages.ghcHEAD.remote-iserv;
+  trifecta = haskell.packages.ghcHEAD.trifecta;
   inherit Cabal_HEAD;
   inherit iserv-proxy;
   inherit pkgs;
