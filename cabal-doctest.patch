@@ -5,9 +5,8 @@ diff -u cabal-doctest-1.0.6.orig/cabal-doctest.cabal cabal-doctest-1.0.6/cabal-d
    other-modules:
    other-extensions:
    build-depends:
--    base >=4.3 && <4.11,
--    Cabal >= 1.10 && <2.1,
-+    base >=4.3 && <4.12,
+     base >=4.3 && <4.12,
+-    Cabal >= 1.10 && <2.3,
 +    Cabal >= 1.10 && <2.4,
      filepath,
      directory

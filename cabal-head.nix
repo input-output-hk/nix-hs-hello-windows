@@ -4,7 +4,7 @@
 mkDerivation {
        pname = "Cabal";
        version = "2.3.0.0";
-       src = pkgs.fetchgit {
+       src = pkgs.buildPackages.fetchgit {
         url = "https://github.com/zw3rk/cabal.git";
         rev = "7016dfa4b7da82a5b6b920d6af44c7add27d8c06";
         sha256 = "140v0zxyrl7apw2glc79qdzxq03cbgal2f412sivm3758xm1r2gm";

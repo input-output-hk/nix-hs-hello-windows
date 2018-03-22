@@ -1,6 +1,5 @@
      { mkDerivation, aeson, aeson-pretty, base, bytestring, dhall
-     , optparse-generic, text, trifecta, vector, yaml, Cabal_HEAD
-     , stdenv
+     , optparse-generic, text, trifecta, vector, yaml, stdenv
      }:
      mkDerivation {
        pname = "dhall-json";
@@ -17,7 +16,5 @@
        license = stdenv.lib.licenses.bsd3;
 
        enableSharedExecutables = false;
-       setupHaskellDepends = [ Cabal_HEAD ];
        hardeningDisable = [ "stackprotector" ];
-
      }
