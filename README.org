@@ -1,10 +1,13 @@
-* Hello Windows
+* Using ~nix~ and ~nixpkgs~ to cross compile Haskell packages to Windows
 
   This repository contains the necessary nix-expressions and a ~nixpkgs~
   submodule that should allow us to cross compile a small haskell application
   into a working windows executable.
 
   [[file:hs-hello.png]]
+** Example applications
+   - ~hello-world~ is the sample application that can be seen in the screenshot above.  It contains no a trivial haskell application
+     with almost no dependencies.
 
 ** Building
    To build the cross compiled ~hs-hello.exe~ with nix, all we need is
