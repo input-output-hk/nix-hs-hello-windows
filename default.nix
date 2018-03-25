@@ -26,6 +26,7 @@ with import nixpkgsPath {
   inherit (buildPackages.haskell.packages.myGhc)
     Cabal
     iserv-proxy
+    cabal2nix
     ;
   cross-ghc = haskell.packages.myGhc.ghc;
   cross-Cabal = haskell.packages.myGhc.Cabal;
