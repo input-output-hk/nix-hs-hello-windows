@@ -54,7 +54,7 @@
               dontStrip = true;
             });
 
-          hello-world = self.callPackage ./hello-world.nix { };
+          hello-world = self.callPackage ./hello-world { };
 
           # iserv logic
           libiserv = with haskell.lib; addExtraLibrary (enableCabalFlag (self.hackageCandidate "libiserv" "8.5" {}) "network") self.network;
