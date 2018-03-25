@@ -1,8 +1,8 @@
 { nixpkgsPath ?
   import ./fetchNixpkgs.nix {
-    rev = "c8f682e7cc3d75066beab1ffa8696c45ec4dab3f";
-    sha256 = "1v1jza5j3y9x067gl9lpn1g4w90swpjgydn3n1wnkxwndrn52z9h";
-    sha256unpacked = "0dv29399nf6b5qhl16hkcaz71kwjn3mv2m2ydc8p0zhakqgar04r";
+    rev = "8df80dbe09df6c9d11a2aec9d0a31320906f2559";
+    sha256 = "0ca7dsqyli7grniv8lr71p01a3iabyz64cfa7rgkm2g9qhsvhv2w";
+    sha256unpacked = "03kaldvp96z3py9imckn0h96nw176nz8qsanf6jn6vwws03sqpy5";
     owner = "angerman";
   }
 }:
@@ -28,4 +28,6 @@ with import nixpkgsPath {
     iserv-proxy
     ;
   cross-ghc = haskell.packages.myGhc.ghc;
+  cross-Cabal = haskell.packages.myGhc.Cabal;
+  setup = buildPackages.haskell.packages.myGhc.setup {};
 }
