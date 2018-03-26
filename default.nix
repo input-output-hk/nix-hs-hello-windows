@@ -1,8 +1,8 @@
 { nixpkgsPath ?
   import ./fetchNixpkgs.nix {
-    rev = "8df80dbe09df6c9d11a2aec9d0a31320906f2559";
-    sha256 = "0ca7dsqyli7grniv8lr71p01a3iabyz64cfa7rgkm2g9qhsvhv2w";
-    sha256unpacked = "03kaldvp96z3py9imckn0h96nw176nz8qsanf6jn6vwws03sqpy5";
+    rev = "c083187d18d49db70586ff882bbae83dd7e31206";
+    sha256 = "10c7vd2j3q645bra2yy5kzh7fx7whxjxr5can913w7fndaipwzwr";
+    sha256unpacked = "0advbxpmkfj6ziibjcfw41cvwpdkvhf4qx0g8d3qlm2nz3pzcbck";
     owner = "angerman";
   }
 }:
