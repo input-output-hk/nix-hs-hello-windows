@@ -73,7 +73,8 @@
           # Template Haskell
           trifecta = with ps.haskell.lib;
           if ps.hostPlatform == ps.buildPlatform then super.trifecta else
-            appendBuildFlags (addExtraLibrary (overrideCabal super.trifecta (drv: { buildTools = [ buildHaskellPackages.iserv-proxy ]; })) ps.windows.mingw_w64_pthreads )
+            let winpthreads = ps.windows.mingw_w64_pthreads.overrideAttrs (drv: { hardeningDisable = [ "stackprotector"]; }); in
+            appendBuildFlags (addExtraLibrary (overrideCabal super.trifecta (drv: { buildTools = [ buildHaskellPackages.iserv-proxy ]; })) winpthreads )
             [ "--ghc-option=-fexternal-interpreter"
               "--ghc-option=-fexternal-interpreter"
               "--ghc-option=-pgmi"
@@ -86,7 +87,7 @@
               "--ghc-option=-opti"
               "--ghc-option=-v "
               # TODO: this should be automatically injected based on the extraLibrary. See above.
-              "--ghc-option=-L${ps.windows.mingw_w64_pthreads}/lib"
+              "--ghc-option=-L${winpthreads}/lib"
           ];
         } // (with ps.haskell.lib; {
           # lift version bounds

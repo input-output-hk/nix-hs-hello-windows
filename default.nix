@@ -31,4 +31,6 @@ with import nixpkgsPath {
   cross-ghc = haskell.packages.myGhc.ghc;
   cross-Cabal = haskell.packages.myGhc.Cabal;
   setup = buildPackages.haskell.packages.myGhc.setup {};
+
+  pthreads = pkgs.windows.mingw_w64_pthreads.overrideAttrs (attrs: { hardeningDisable = [ "stackprotector"]; });
 }
