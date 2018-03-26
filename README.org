@@ -44,7 +44,7 @@
    Now building ~dhall-json~ (or any other library with non-fs and non-proc TH requirements), after adjusting the ~PORT~
    value in the ~config.nix~.
 
-   #+BEING_SRC bash
+   #+BEGIN_SRC bash
    $ nix-build -A dhall-json --cores 0
    #+END_SRC
 
