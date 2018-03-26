@@ -8,9 +8,14 @@
 ** Example applications
    - ~hello-world~ is the sample application that can be seen in the screenshot above.  It contains no a trivial haskell application
      with almost no dependencies.
+   - ~remote-iserv~ is the template haskell runner application.  This needs to be built, and copied together with the
+     ~libwinpthread-1.dll~ from the ~windows.mingw_w64_pthreads~ package to the window machine to compile haskell packages using
+     template haskell (non-filesystem and non-process only).
+   - ~dhall-json~ is a slightly more sophisticated haskell application with a larger set of dependencies and through the dependency
+     on ~trifecta~ also dependent on Template Haskell to compile.
 
-** Building
-   To build the cross compiled ~hs-hello.exe~ with nix, all we need is
+** Building without Template Haskell
+   To build the cross compiled applications with ~nix~, we need to invoke ~nix-build~. For example for ~hello-world~:
 
    #+BEGIN_SRC bash
    $ nix-build -A hello-world --cores 0 
@@ -19,34 +24,43 @@
    This will build the necessary dependencies, and finally build the
    ~hs-hello.exe~, which we can find in ~result/bin/hs-hello.exe~.
 
-** ~config.nix~
-   We will need a customized GHC.  Due to the introduction of the
-   ~buildPackages~ for the cross compilation capabilities in ~nixpkgs~ this
-   turns out to be a bit more complicated than we like.  The core issue here is
-   that the stage logic and the ~packageOverrides~ do not play well together.
-   Specifically changes made via ~packageOverrides~ do not show up in the
-   ~buildPackages~.
+** Building with Template Haskell
+   To build a cross compiled application with ~nix~ that requires Template Haskell during the build, we need to build the 
+   ~remote-iserv~ application first.  This acts as an evaluation slave for GHC to evaluate Template Haskell splices on the
+   target machine.
 
-** ~hello-world.nix~
-   This is our usual haskell package expression.  Just note the additional 
-
-   #+BEGIN_SRC nix
-   enableSharedExecutables = false;
-   setupHaskellDepends = [ Cabal_HEAD ];
+   #+BEGIN_SRC bash
+   $ nix-build -A remote-iserv --cores 0 --out-link remote-iserv
+   $ nix-build -A pthreads --out-link mingw_pthreads
    #+END_SRC
 
-   as we don't have dynamic libraries with our cross compiler (yet).  And need
-   to link against a custom ~Cabal~ library.
+   Copying ~remote-iserv/bin/remote-iserv.exe~ together with ~mingw_pthreads/bin/libwinpthread-1.dll~ to a windows machine
+   and launching in a command prompt:
 
-** ~default.nix~
-   In the ~default.nix~ we'll pull everything together.  Set the ~crossSystem~
-   to ~mingwW64~ and the ~packageOverlays~ via ~config~.
+   #+BEGIN_SRC bash
+   > remote-iserv.exe tmp 5001 -v
+   #+END_SRC
 
-   In addition we setup a custom ~Cabal~ library, which we want to link against;
-   the one that ships with GHC has some defects when cross compiling to windows.
+   Now building ~dhall-json~ (or any other library with non-fs and non-proc TH requirements), after adjusting the ~PORT~
+   value in the ~config.nix~.
 
-   We use ~callPackage~ on the ~buildPackages~ to ensure that the ~Cabal~
-   library is built for the *build* machine.  For the ~hello-world~ package
-   (~hello-world.nix~) we use ~pkgs~ which will result in the package to be built
-   for the *host* machine.
+   #+BEING_SRC bash
+   $ nix-build -A dhall-json --cores 0
+   #+END_SRC
+
+   should put the ~dhall-json~ executable for windows into ~result/bin~.
+
+** The ~nix~ expressions:
+*** ~config.nix~
+
+    The ~config.nix~ contains the necessary local modifications on top of the ~nixpkgs~
+    required to build all tools.  We'll hopefully be able to reduce the amount of
+    customization in the future.
+
+*** ~default.nix~
+    In the ~default.nix~ we'll pull everything together.  Set the ~crossSystem~
+    to ~mingwW64~ and the ~packageOverlays~ via ~config~.
+
+    The ~default.nix~ also exports a variety of tools from the ~haskell.packages~
+    as well as from the ~buildPackages.haskell.packages~.
 
