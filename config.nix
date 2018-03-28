@@ -29,6 +29,9 @@
       addBuildDepends'  = ds: drv: addBuildDepends drv ds;
       appendBuildFlags' = fs: drv: appendBuildFlags drv fs;
       overrideCabal'    = os: drv: overrideCabal drv os;
+      addBuildTools'    = ts: drv: addBuildTools drv ts;
+      addPreBuild'      = x: drv:  overrideCabal drv (drv: { preBuild  = (drv.preBuild or  "") + x; });
+      addPostBuild'     = x: drv:  overrideCabal drv (drv: { postBuild = (drv.postBuild or "") + x; });
     });
 
     haskell.compiler = ps.haskell.compiler // {
@@ -107,7 +110,9 @@
             appendBuildFlags' buildFlags
              (addBuildDepends' [ self.remote-iserv ]
               (addExtraLibrary' windows.mingw_w64_pthreads
-               (overrideCabal' (drv: { inherit buildTools preBuild postBuild; }) pkg)));
+               (addBuildTools' buildTools
+                (addPreBuild' preBuild
+                 (addPostBuild' postBuild pkg)))));
 
           # --------------------------------------------------------------------------------
 
