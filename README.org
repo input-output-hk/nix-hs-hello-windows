@@ -30,12 +30,10 @@
    target machine.
 
    #+BEGIN_SRC bash
-   $ nix-build -A remote-iserv --cores 0 --out-link remote-iserv
    $ nix-build -A pthreads --out-link mingw_pthreads
    #+END_SRC
 
-   Copying ~remote-iserv/bin/remote-iserv.exe~ together with ~mingw_pthreads/bin/libwinpthread-1.dll~ to a windows machine
-   and launching in a command prompt:
+   Launching in a command prompt:
 
    #+BEGIN_SRC bash
    > remote-iserv.exe tmp 5001 -v
@@ -49,6 +47,11 @@
    #+END_SRC
 
    should put the ~dhall-json~ executable for windows into ~result/bin~.
+
+** Building with Template Haskell via wine
+   
+   When using the ~doTemlateHaskell~ function from the ~config.nix~.  It will transparently build, and launch the Template
+   Haskell runner in wine when building the package. This completely eliminates the need for a running windows instance.
 
 ** The ~nix~ expressions:
 *** ~config.nix~
