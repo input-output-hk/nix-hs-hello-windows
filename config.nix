@@ -1,8 +1,36 @@
 {
-  packageOverrides = ps: rec {
+  # This should work on linux and macOS.
+  # wineWoW would be 32+64bit.  We can
+  # probably get by with 64bit only.
+  wine.build = "wine64";
+
+  packageOverrides = ps: with ps; rec {
+
+    windows = ps.windows // {
+      # Disable the stackprotector on for ptheads. Otherwise the libwinpthread-1.dll will depend on
+      # the libssp-0.dll in addition to KERNEL32.dll and msvcrt.dll.  This can be seen with either:
+      #
+      # > dumpbin /imports libwinpthread-1.dll | findstr .dll
+      #
+      # or
+      #
+      # $ strings libwinpthread-1.dll | grep "\.dll$"
+      #
+      # Thus we disable stackprotector, so that we can just copy the libwinpthread-1.dll next to
+      # our binary and don't need to find and copy the libssp-0.dll from gcc as well.
+      mingw_w64_pthreads = ps.windows.mingw_w64_pthreads.overrideAttrs (attrs: { hardeningDisable = [ "stackprotector"]; });
+    };
+
     libyaml = ps.libyaml.overrideAttrs (drv: { patches = [ ./patches/libyaml.patch ]; });
 
-    haskell.lib = ps.haskell.lib;
+    haskell.lib = ps.haskell.lib // (with ps.haskell.lib; {
+      # sanity
+      addExtraLibrary'  = ls: drv: addExtraLibrary drv ls;
+      addBuildDepends'  = ds: drv: addBuildDepends drv ds;
+      appendBuildFlags' = fs: drv: appendBuildFlags drv fs;
+      overrideCabal'    = os: drv: overrideCabal drv os;
+    });
+
     haskell.compiler = ps.haskell.compiler // {
       myGhc = (ps.haskell.compiler.ghcHEAD.override {
         # override the version, revision and flavour to get a custom ghc.
@@ -30,11 +58,12 @@
 
         ghc = ps.buildPackages.haskell.compiler.myGhc;
         buildHaskellPackages = ps.buildPackages.haskell.packages.myGhc;
-        overrides = self: super: {
+        overrides = self: super: rec {
 
           # Custom Cabal (required for windows support); and a Setup builder with the newer Cabal.
           Cabal = ps.haskell.lib.overrideCabal (self.callPackage ./cabal-head.nix { }) (drv: { enableSharedExecutables = false; enableSharedLibraries = false; });
           setup = args: super.setup (args // { setupHaskellDepends = [ self.Cabal ]; });
+
           # fetch a package candidate from hackage and return the cabal2nix expression.
           hackageCandidate = name: ver: args: self.callCabal2nix name (fetchTarball "https://hackage.haskell.org/package/${name}-${ver}/candidate/${name}-${ver}.tar.gz") args;
 
@@ -54,13 +83,46 @@
               dontStrip = true;
             });
 
+          # Logic to run TH via an external interpreter (64bit windows via wine64)
+          doTemplateHaskell = pkg: with haskell.lib; let
+            buildTools = [ buildHaskellPackages.iserv-proxy buildPackages.winePackages.minimal ];
+            buildFlags = map (opt: "--ghc-option=" + opt) [
+              "-fexternal-interpreter"
+              "-pgmi" "${buildHaskellPackages.iserv-proxy}/bin/iserv-proxy"
+              "-opti" "127.0.0.1" "-opti" "$PORT"
+              # TODO: this should be automatically injected based on the extraLibrary.
+              "-L${windows.mingw_w64_pthreads}/lib"
+            ];
+            preBuild = ''
+              PORT=$((5000 + $RANDOM % 5000))
+              echo "---> Starting remote-iserv on port $PORT"
+              WINEPREFIX=$TMP ${buildPackages.winePackages.minimal}/bin/wine64 ${self.remote-iserv}/bin/remote-iserv.exe tmp $PORT &
+              sleep 5 # wait for wine to fully boot up...
+              RISERV_PID=$!
+            '';
+            postBuild = ''
+              echo "---> killing remote-iserv..."
+              kill $RISERV_PID
+            ''; in
+            appendBuildFlags' buildFlags
+             (addBuildDepends' [ self.remote-iserv ]
+              (addExtraLibrary' windows.mingw_w64_pthreads
+               (overrideCabal' (drv: { inherit buildTools preBuild postBuild; }) pkg)));
+
+          # --------------------------------------------------------------------------------
+
           hello-world = self.callPackage ./hello-world { };
 
           # iserv logic
           libiserv = with haskell.lib; addExtraLibrary (enableCabalFlag (self.hackageCandidate "libiserv" "8.5" {}) "network") self.network;
           iserv-proxy = self.hackageCandidate "iserv-proxy" "8.5" { libiserv = self.libiserv; };
           # TODO: Why is `network` not properly propagated from `libiserv`?
-          remote-iserv = with haskell.lib; addExtraLibrary (self.hackageCandidate "remote-iserv" "8.5" { libiserv = self.libiserv; }) self.network;
+          remote-iserv = with haskell.lib; let pkg = addExtraLibrary (self.hackageCandidate "remote-iserv" "8.5" { libiserv = self.libiserv; }) self.network; in
+            overrideCabal (addBuildDepends pkg [ windows.mingw_w64_pthreads ]) (drv: {
+            postInstall = ''
+              cp ${windows.mingw_w64_pthreads}/bin/libwinpthread-1.dll $out/bin/
+            '';
+          });
 
           mtl = ps.haskell.lib.overrideCabal super.mtl (drv: { libraryHaskellDepends = [ self.base self.transformers ]; });
 
@@ -72,23 +134,8 @@
 
           # Template Haskell
           trifecta = with ps.haskell.lib;
-          if ps.hostPlatform == ps.buildPlatform then super.trifecta else
-            let winpthreads = ps.windows.mingw_w64_pthreads.overrideAttrs (drv: { hardeningDisable = [ "stackprotector"]; }); in
-            appendBuildFlags (addExtraLibrary (overrideCabal super.trifecta (drv: { buildTools = [ buildHaskellPackages.iserv-proxy ]; })) winpthreads )
-            [ "--ghc-option=-fexternal-interpreter"
-              "--ghc-option=-fexternal-interpreter"
-              "--ghc-option=-pgmi"
-              "--ghc-option=${buildHaskellPackages.iserv-proxy}/bin/iserv-proxy"
-              "--ghc-option=-opti"
-              # TODO: Do not hardcode IP / PORT
-              "--ghc-option=10.0.1.22"
-              "--ghc-option=-opti"
-              "--ghc-option=5001"
-              "--ghc-option=-opti"
-              "--ghc-option=-v "
-              # TODO: this should be automatically injected based on the extraLibrary. See above.
-              "--ghc-option=-L${winpthreads}/lib"
-          ];
+          if ps.hostPlatform == ps.buildPlatform then super.trifecta else (doTemplateHaskell super.trifecta);
+
         } // (with ps.haskell.lib; {
           # lift version bounds
           async         = doJailbreak super.async;

@@ -1,8 +1,8 @@
 { nixpkgsPath ?
   import ./fetchNixpkgs.nix {
-    rev = "c083187d18d49db70586ff882bbae83dd7e31206";
-    sha256 = "10c7vd2j3q645bra2yy5kzh7fx7whxjxr5can913w7fndaipwzwr";
-    sha256unpacked = "0advbxpmkfj6ziibjcfw41cvwpdkvhf4qx0g8d3qlm2nz3pzcbck";
+    rev = "253aed86cc0fc8c27e46561deb0a3031a4c34bc6";
+    sha256 = "1lg31agk2b1sb51h4ydni7lp6kkg98359jpcz4acr1rhrcql39fq";
+    sha256unpacked = "0h2bl9k0r708z0gsj062mzn3w22v1g9nni37q65xscnjgrfvy987";
     owner = "angerman";
   }
 }:
@@ -31,6 +31,7 @@ with import nixpkgsPath {
   cross-ghc = haskell.packages.myGhc.ghc;
   cross-Cabal = haskell.packages.myGhc.Cabal;
   setup = buildPackages.haskell.packages.myGhc.setup {};
+  pthreads = pkgs.windows.mingw_w64_pthreads;
+  wine = buildPackages.winePackages.minimal;
 
-  pthreads = pkgs.windows.mingw_w64_pthreads.overrideAttrs (attrs: { hardeningDisable = [ "stackprotector"]; });
 }
